@@ -1,0 +1,332 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+---
+Install Libraries
+```{r include=FALSE}
+install.packages("readr")
+install.packages("tidyverse")
+install.packages("tidyr")
+install.packages("dplyr")
+install.packages("stringr")
+install.packages("lubridate")
+
+```
+
+
+Calling Libraries
+```{r Calling Libraries}
+#library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(readr)
+library(readxl)
+
+#working with dates
+library(lubridate)
+```
+
+
+
+IMPORTING
+```{r}
+#We can read from all "sheet" of any excel file
+data1<-read_xlsx("C:/R-Source/procesos1.xlsx", sheet = "Hoja1")
+
+```
+
+
+
+I.SELECT ROW AND COLUMNS (dplyr PACKAGE)
+====================================
+##1.Basic Filter, Select and Arrange ("dplyr")
+```{r}  
+#Select basic
+ select(iris, Petal.Length, Species)
+
+#Select with pipe
+iris %>%
+          select(Petal.Length, Species)
+        
+iris %>%
+          select(Petal.Length, Species)%>%
+          filter(!Petal.Length%in%c(1.4,1.5))
+
+#Arrange: order rows and assign to a object called "examSelec1"
+examSelec1<-iris %>%
+          select(Petal.Length, Species)%>%
+          filter(Petal.Length%in%c(1.4,1.5))%>%
+           arrange(desc(Petal.Length))
+```
+
+##2.Multiple condition
+```{r}
+df %>% filter(A == 1 & B == 3 | A == 3 & B ==2)
+```
+
+
+##3. Advance filters to identify into a word using "str_detect" ("stringr" library)
+```{r}
+#Using "fruit" dataset from "stringr" library
+stringr::fruit
+fruta=as.data.frame(fruit)
+colnames(fruta)[1]="nombre"
+
+##1. Finding the words that start with "black" or "blu"
+fruta %>%
+  filter(str_detect(nombre, 'black|blu'))
+
+##2. Finding the words that start with "l"
+fruta %>%
+  filter(str_detect(nombre, "^l"))
+
+##3. Finding the words that ends with "l"
+fruta %>%
+  filter(str_detect(nombre, "l$"))
+
+
+##4.pick up rows where the names contain digits
+  df_wrangling <- data.frame(name=c("Melody2","Gian","Paul44","Jearson","Jenny"),scores=c(3,1,5,6,3),Menbership=c(11,2,6,7,8))
+
+df_wrangling %>% 
+  filter(str_detect(name, "\\d"))
+
+##5.pick up rows where the names NO contain digits
+df_wrangling %>% 
+  filter(!str_detect(name, "\\d"))
+
+```
+
+##4.Advance filters to identify words into a phrase using "grepl" ("base" library)
+```{r}
+library(dplyr)
+stringr::sentences
+
+frases=as.data.frame(sentences)
+colnames(frases)[1]="name"
+
+
+frases %>% filter(grepl("The so", name))
+```
+
+
+
+III.OPERATIONS
+==========================
+### 1.COUNT
+1.Group_by and Summarize
+```{r}
+#without filter
+iris %>%
+    group_by(Petal.Length) %>%
+    summarize(cantidad=n())
+
+#without filter
+iris %>%
+    filter(Petal.Length%in%c(1.4,1.7))%>%
+    group_by(Petal.Length) %>%
+    summarize(cantidad=n())
+
+```
+
+### 2.SUM
+```{r}
+df.saea.clean%>%
+          filter(terminado=="si"&Estado=="En Proceso"&grepl("INDRA",Especialista.de.Estado)&!is.na(serv_TI))%>%           group_by(Linea.de.Servicio=serv_TI,Fecha.final)%>%
+          summarise(horas=round((sum(Tiempo)/60),2))
+
+mtcars %>%
+    mutate(NA_count = rowSums(is.na(.)))
+
+
+df %>%
+   summarise(across(everything(), ~ sum(., is.na(.), 0)))
+```
+
+
+
+##2. Tally
+```{r}
+# tally() is short-hand for summarise()
+mtcars %>% tally()
+# count() is a short-hand for group_by() + tally()
+mtcars %>% count(cyl)
+
+# add_tally() is short-hand for mutate() adding the number of records
+mtcars %>% add_tally()
+
+# add_count() is a short-hand for group_by() + add_tally(), adding the partial sum of a different colum value
+mtcars %>% add_count(cyl)
+
+# count and tally are designed so that you can call
+# them repeatedly, each time rolling up a level of detail
+species <- starwars %>% count(species, homeworld, sort = TRUE)
+species
+species %>% count(species, sort = TRUE)
+
+```
+
+
+### 2. Mean
+```{r}
+df.saea.clean%>%
+          filter(terminado=="si"&Estado=="En Proceso"&grepl("INDRA",Especialista.de.Estado)&!is.na(serv_TI))%>% 
+          group_by(Linea.de.Servicio=serv_TI,Fecha.final)%>%
+          summarise(horas=round((sum(Tiempo)/60),2))%>%
+          group_by(Linea.de.Servicio) %>%
+          summarise(Mean = mean(horas))
+```
+
+
+III.UPDATE COLUMNS(dplyr, stringr PACKAGE)
+=========================
+##1.Update colums itself
+1.1 using Mutate(dplyr)  
+```{r}
+iris %>%
+  mutate(Species= ifelse(grepl("setosa",Species),"valor de prueba",Species)) 
+```
+
+
+##2.from another, prior to Compare one numeric column 
+```{r}
+#working with df.iris, created before
+
+#create anohter dataframe
+newspecie<-data.frame(newname=c("tulip","rose"),number=c(1,2))
+
+#Update "df.iris", prior to compare against "newspecie"
+#1ra way:
+df.iris$Species<-ifelse(match(newspecie$number,df.iris$id),newspecie$newname,NA)
+
+
+#2da way
+df.iris$Species<-newspecie$newname[match(df.iris$id,newspecie$number)]
+```
+
+##3.from another, prior to Compare one string column 
+```{r}
+set.seed(1)
+df1 <- data.frame(A = sample(seq(3), 10, replace = TRUE))
+df2 <- data.frame(A = seq(3), B = c("pizza", "hot dog", "hamburger"), stringsAsFactors = FALSE)
+
+#it is better use a simple match
+df1$B <- df2$B[match(df1$A, df2$A)]
+```
+
+
+##4.Update one table from another, prior to Compare 2 columns
+```{r}
+rtc.1$estado_req<-ifelse(match(rtc.1$macroservicio,rtc.est.gen$Macroservicio_aux)&match(rtc.1$Estado,rtc.est.gen$Estado_req_aux),rtc.est.gen$Estado_generico,NA)
+```
+
+##5.Update words
+```{r}
+
+#You use ifelse when you have to replace all 
+ara.dqa.dep$area<- ifelse(str_detect(ara.dqa.dep$area,regex("Direccion de Inversiones")),"DIN",ara.dqa.dep$area)
+#if you just want to update same pattern without affect the others one, do that
+ara.dqa.dep$area<- ifelse(str_detect(ara.dqa.dep$area,regex("Direccion de Inversiones")),"DIN",ara.dqa.dep$area)
+```
+
+
+III.ADD COLUMNS (Mutate)
+===================================
+##1.Add column for all rows
+```{r}
+#
+vector1 %>%
+  mutate(newColumn=ifelse(grepl(3.5,Sepal.Width),10,Sepal.Width)) 
+```
+
+##2.Add a colum to a group
+```{r}
+if (!require("gcookbook")) {
+  install.packages("gcookbook", repos="http://cran.rstudio.com/") 
+  library(gcookbook)
+}
+
+library(ggplot2)
+library(dplyr)
+
+#Add a column that catch the percentage as "ratio"
+res <- cabbage_exp %>%
+group_by(Date) %>%
+mutate(ratio = Weight / sum(Weight))
+
+#plot 
+ggplot(cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
+geom_bar(stat = "identity",colour = "black", position = "fill") +
+geom_text(data = res, aes(label=scales::percent(ratio), y=ratio), position = position_fill(vjust = 0.5))
+
+```
+
+
+IV.SEPARATE COLUMS (PARSING)
+=======================
+
+##1.Separate columns in R by space delimiter
+```{r}
+#Creating DATA FRAME
+df<-data.frame(technology=c("SOA PowerBuilder Java","PLSQL Python OT"),issues=c(2,8))
+#Removing Whitespace using: \\s+
+demo<-df%>%
+    separate(technology,c("tech1","tech2","tech3"),sep = "\\s+",remove = FALSE)
+```
+
+
+##2.Separate into multiple columns
+```{r}
+df_separate<-data.frame(service_name=c("Macroservice1.Service1.Subservice1.CategoryA1.CategoryA2.CategoryA3.CategoryA4","Macroservice5.Service4.Subservice9.CategoryA9.CategoryA12.CategoryA23.CategoryA8"),issues=c(2,8))
+
+#Split with special character(*,/,(, etc)), then use "separate"
+df_separate%>%  
+  separate(service_name,c("Macroservicio","Servicio_ti","Subservicio","Categoria1","Categoria2","Categoria3","Categoria4"), sep ='\\.|\\.|\\.|\\.|\\.|\\.', remove = TRUE)
+  
+```
+
+
+
+
+V.JOIN (Base,purr PACKAGE)
+========================
+##1.Inner join
+```{r}
+  
+df.bdi<-inner_join(list2,df.p2,by="n_requerimiento")
+```
+
+
+
+##2.inner join based on two columns
+```{r}
+library(dplyr)
+df1 <- data.frame(
+  lat = c(-33.9174, -33.9175, -33.9176, -33.9177, -33.9171), 
+  long = c(151.2263, 151.2264, 151.2265, 151.2266, -140.54),
+  PM = c(8, 10, 9, 8, 55)
+)
+
+df2 <- data.frame(
+  lat = c(-33.9174, -33.9175, -33.9176, -33.9177, -31), 
+  long = c(151.2263, 151.2264, 151.2265, 151.2266, 134),
+  PM = c(12, 15, 11, 3, 18)
+)
+
+
+inner_join(df1, df2, by = c("lat", "long"))
+```
+
+
+
+```{r}
+#1.CREATE COLUM
+#For listing in vertical view the values of a "String" or "dataframe", it is necesary use "fill = 1"
+cat(letters,fill = 1)
+
+
+```
+

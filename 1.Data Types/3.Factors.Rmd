@@ -1,0 +1,22 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+gender <- factor ( c ("male", "female", "female", "male", "female"))
+gender
+summary(gender)
+
+```
+
+# Ordering Levels
+```{r}
+# specifying order
+gender <- factor ( c ("male", "female", "female", "male", "female"),
+levels = c ("male", "female"))
+gender
+```
+

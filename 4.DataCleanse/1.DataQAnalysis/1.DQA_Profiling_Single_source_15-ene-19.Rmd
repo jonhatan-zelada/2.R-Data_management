@@ -1,0 +1,361 @@
+
+
+
+```{r}
+if (!require("dplyr")) {
+  install.packages("dplyr", repos="http://cran.rstudio.com/") 
+  library(dplyr)
+}
+
+```
+
+Grafic
+```{r install}
+
+if (!require("visdat")) {
+  install.packages("visdat", repos="http://cran.rstudio.com/") 
+  library(visdat)
+}
+
+if (!require("naniar")) {
+  install.packages("naniar", repos="http://cran.rstudio.com/") 
+  library(naniar)
+}
+
+if (!require("rpart")) {
+  install.packages("rpart", repos="http://cran.rstudio.com/") 
+  library(rpart)
+}
+
+
+if (!require("DataExplorer")) {
+  install.packages("DataExplorer", repos="http://cran.rstudio.com/") 
+  library(DataExplorer)
+}
+
+if (!require("rpart.plot")) {
+  install.packages("rpart.plot", repos="http://cran.rstudio.com/") 
+  library(rpart.plot)
+}
+
+```
+
+Dataset
+```{r}
+if (!require("nycflights13")) {
+  install.packages("nycflights13", repos="http://cran.rstudio.com/") 
+  library(nycflights13)
+}
+```
+
+load data
+```{r}
+#From 
+df.dqa<-read.csv("C:/R-Source/hot-dog-contest-winners.csv")
+
+#from library
+data_list <- list(airlines, airports, flights, planes, weather)
+```
+
+Now let's merge all tables together for a more robust dataset for later sections.
+```{r}
+merge_airlines <- merge(flights, airlines, by = "carrier", all.x = TRUE)
+merge_planes <- merge(merge_airlines, planes, by = "tailnum", all.x = TRUE, suffixes = c("_flights", "_planes"))
+merge_airports_origin <- merge(merge_planes, airports, by.x = "origin", by.y = "faa", all.x = TRUE, suffixes = c("_carrier", "_origin"))
+final_data <- merge(merge_airports_origin, airports, by.x = "dest", by.y = "faa", all.x = TRUE, suffixes = c("_origin", "_dest"))
+```
+
+
+sURCE: 
+*An Introduction to Data Profiling, Felix Naumann
+*https://cran.r-project.org/web/packages/DataExplorer/vignettes/dataexplorer-intro.html
+*https://www.rdocumentation.org/packages/DataExplorer/versions/0.6.0
+
+I.SINGLE COLUM
+==============================
+
+
+#1.CARDINALITY
+
+##1.1.Number of values by table
+
+##1.2.Number of distinct values
+
+Charging colum names to a "list"
+```{r}
+#de.1 is a data frame
+lista1<-names(final_data)
+
+
+class(lista1)
+for (i in 1:nrow(final_data)){
+y<- NROW(unique(final_data[,i]))
+}
+
+iris.num <- iris[, -5]
+apply(iris.num, 2, min)
+```
+
+
+
+```{r}
+for (i in 1:nrow(final_data)){
+#j <- i + 10
+print(paste(col=colnames(final_data)[i],NROW(unique(final_data[,i])),sep = ":"))
+}
+```
+
+
+
+##1.3.Number of NULLs (Missing values)
+###1.General
+1.1.Usign dataExplorer
+```{r}
+plot_missing(final_data)
+```
+
+
+1.2.Using "visdat" library)
+```{r all}
+#vis_miss: The function vis_miss provides a summary of whether the data is missing or not. It also provides the amount of missings in each columns.
+vis_miss(airquality)
+```
+
+###2.Look into the missing value columns
+```{r}
+#geom_point
+ggplot(airquality, 
+       aes(x = Solar.R, 
+           y = Ozone)) + geom_miss_point()
+#faceting by no-missing column
+ggplot(airquality, 
+       aes(x = Solar.R, 
+           y = Ozone)) + 
+  geom_miss_point()+ 
+  facet_wrap(~Month)
+```
+
+###3.MIssingness distribution 
+3.1.Curve(SHADOWS)
+```{r}
+#shadow(): functions provide a way to keep track of missing values. The as_shadow function creates a dataframe with the same set of columns, but with the column names added a suffix _NA
+as_shadow(airquality)
+aq_shadow <- bind_shadow(airquality)
+glimpse(aq_shadow)
+
+ggplot(aq_shadow,
+       aes(x = Temp,
+           colour = Ozone_NA)) + 
+  geom_density()
+```
+
+3.2.missingness tree dessition
+```{r}
+airquality %>%
+  add_prop_miss() %>%
+  head()
+
+library(rpart)
+library(rpart.plot)
+airquality %>%
+  add_prop_miss() %>%
+  rpart(prop_miss_all ~ ., data = .) %>%
+  prp(type = 4, extra = 101, prefix = "Prop. Miss = ")
+```
+
+
+
+
+##MIN and MAX value
+
+
+#2.UNIQUENESS AND KEYS
+##2.1. Unique column
+ Only unique values (scales library)
+```{r}
+###3.Identify unicicity 
+num.total<-nrow(serv.saea)
+
+dem.eventos<-n_distinct(serv.saea$`Demanda del Servicio Eventos`, na.rm = FALSE)/num.total
+#using  "percent()" from "scales" package, to plot ot will be disable
+print(percent(dem.eventos))
+```
+ 
+ 
+##2.2.Unique column combination
+??? Only unique value combinations
+??? Minimality: No subset is unique
+
+
+#2.3.Key candidate
+??? No null values
+??? Uniqueness and non-null in one instance does not imply key: Only human can specify keys (and foreign keys)
+
+#2.4.Meaning of NULL values for each column
+
+
+
+#3.PATTERN & DATATYPE
+
+##3.1.Datatype by table
+Tree: HOw many record of String vs. number vs. date exit?(Using "DataExplorer" library)
+```{r}
+#library(DataExplorer)
+plot_str(data_list)
+```
+Table (Using "visdat" library)
+```{r}
+#vis_dat: Amount, class, missing
+        #visualises the whole dataframe at once, and provides information about the "class"" of the data input into R, as well as whether the data is "missing"" or not
+vis_dat(airquality)
+```
+
+
+
+##Categorical vs. continuous
+Resume of discrete and continuous column ("DataExplorer" library)
+```{r}
+introduce(final_data)
+```
+
+Split data into discrete and continuous parts ("DataExplorer" library)
+```{r}
+output <- split_columns(iris)
+output$discrete
+output$continuous
+output$num_discrete
+output$num_continuous
+output$num_all_missing
+```
+
+
+
+##SQL data types: () CHAR, INT, DECIMAL, TIMESTAMP, BIT, CLOB,etc)
+##Domains VARCHAR(12) vs. VARCHAR (13)
+## XML data types() More fine grained)
+## Regular expressions (\d{3})-(\d{3})-(\d{4})-(\d+)
+## Semantic domains (Adress, phone, email, first name)
+
+#4.Value Distributions
+
+##4.1.Bar chart
+```{r}
+plot_bar(final_data)
+```
+
+
+##4.2.Histogram
+```{r}
+colors = c("red","green3","blue")
+numcols <- length(names(df.dqa))
+par(mfrow=c(3,5))
+for(i in 1:numcols){
+if(is.factor(df.dqa[,i])){
+if( as.integer(nlevels(df.dqa[,i]) <= 20) )
+plot(df.dqa[,i],main=names(df.dqa)[i],col=colors)
+}
+else{hist(df.dqa[,i],main=names(df.dqa)[i],xlim=c(0,300000),breaks=100,xlab=names(df.dqa)[i],col=colors)
+}
+}
+```
+
+
+```{r basis}
+# 1. HISTOGRAM FOR PARAMETRIC
+hist(airquality$Solar.R, breaks=10, col="red")
+
+
+# 2. HISTOGRAM FOR NO PARAMETRIC
+ggplot(data=airquality, aes(airquality$Solar.R)) + 
+  geom_histogram(breaks=seq(20, 300, by =20), 
+                 col="red", 
+                 aes(fill=..count..))
+
+
+```
+
+
+
+
+Visualising missings in variables
+```{r}
+#gg_miss_var(): shows the number of missing values in each variable in a dataset
+gg_miss_var(airquality)+ labs(y = "Look at all the missing ones")
+
+#gg_miss_case(): This plot shows the number of missing values in each case. It is powered by the miss_case_summary() function.
+gg_miss_case(airquality) + labs(x = "Number of Cases")
+
+#gg_miss_fct():shows the number of missings in each column, broken down by a categorical variable from the dataset.
+View(riskfactors)
+gg_miss_fct(x = riskfactors, fct = marital)
+
+#
+# using group_by
+library(dplyr)
+riskfactors %>%
+  group_by(marital) %>%
+  miss_var_summary()
+
+#gg_miss_span(): This plot shows the number of missings in a given span, or breaksize, for a single selected variable. In this case we look at the span of hourly_counts from the pedestrian dataset.
+miss_var_span(pedestrian, hourly_counts, span_every = 3000)
+gg_miss_span(pedestrian, hourly_counts, span_every = 3000)+labs(x = "custom") + theme_light()
+
+
+```
+
+
+
+
+
+
+
+
+
+USING VIM PACKAGE
+```{r}
+install.packages("VIM")
+library(VIM)
+data(tao)
+summary(tao)
+View(tao)
+
+#matrixplot() function will display the entire dataset as a set of rectangles to represent each cell. Similar values in the data will have similar grayscale values, and NAs will show up clearly in red:
+matrixplot(tao)
+
+matrixplot(airquality)
+
+#To complement the detailed picture given by matrixplot ,you can get a numerican d visual summary of missing values with the aggr function:
+tao_aggr = aggr(tao)
+tao_aggr
+
+#You can compare missingness across fields with histograms, such as the distribution of missing humidity values by corresponding air temperature:
+histMiss(tao[5:6])
+
+#You can flip the variables to see the opposite distribution:
+histMiss(tao[c(6,5)])
+
+
+#You can show the same data in a scatterplot for more details:
+marginplot(tao[5:6])
+
+
+#This can be expanded to visualizing pairwise comparisons with the marginmatrix function:
+marginmatrix(tao[4:6])
+
+```
+
+
+II.MULTIPLE COLUM
+==============================
+#1.Uniqueness and keys
+
+
+
+#2.Inclusion and foreign key dependency
+
+
+
+#3.Functional dependencies
+
+
+#4.Conditional and approximate dependencies

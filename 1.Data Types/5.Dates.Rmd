@@ -1,0 +1,74 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+install.packages("lubridate")
+```
+
+```{r}
+#working with dates
+library(lubridate)
+```
+
+#1.basis
+```{r}
+d = as.Date("2016-07-21") # Current Date Time Stamp
+format(d,"%a") # Abbreviated Weekday
+format(d,"%A") # Full Weekday
+
+format(d,"%b") # Abbreviated Month
+format(d,"%B") # Full Month
+format(d,"%m") # 00-12 Month Format
+format(d,"%d") # 00-31 Day Format
+
+format(d,"%e") # 0-31 Day Format
+
+format(d,"%y") # 00-99 Year
+
+format(d,"%Y") # Year with Century
+```
+#2 Parsing Strings into Date Objects
+```{r}
+as.Date('2016-08-01') # in ISO format, so does not require formatting string
+
+as.Date('05/23/16', format = '%m/%d/%y')
+
+as.Date('March 23rd, 2016', '%B %drd, %Y') # add separators and literals to format
+
+as.Date('2016-08-01 foo') # leading whitespace and all trailing characters are ignored
+
+as.Date(c('2016-01-01', '2016-01-02'))
+```
+
+
+#3.Update  "dates"
+
+```{r}
+
+#3.Change format
+df.dates$col3<-format(df.dates$col1,"%d-%m-%Y")
+
+```
+
+
+
+```{r "date"}
+###a.ARANDA: Creating new field "fecha" for Analysis  with the form "A?O-MES"
+ara.1$fecha<-format(as.Date(ara.1$fecha_de_solicitud,format="%Y-%m-%d"),"%Y-%m")
+View(ara.1)
+
+rtc_tem<-rtc.1%>%
+  select(fecha_de_solicitud,fecha_de_cierre,Servicio_ti)
+View(rtc_tem)
+
+###b.RTC: Now Turn "fecha_de_solicitud" into date using "LUBRIDATE" library
+rtc_tem$fecha_de_solicitud<-mdy_hm(rtc_tem$fecha_de_solicitud)
+View(rtc_tem)
+
+mdy_hm("01/31/2017 08:01")
+
+```
+
+

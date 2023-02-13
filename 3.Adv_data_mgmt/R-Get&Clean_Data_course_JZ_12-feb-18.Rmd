@@ -1,0 +1,313 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+---
+book "r for data sceince""
+
+CHAPTERS
+
+
+Install Libraries
+```{r Install Libraries}
+install.packages("tidyverse")
+install.packages("tidyr")
+install.packages("dplyr")
+install.packages("grid")
+install.packages("tibble")
+install.packages("stringr")
+install.packages("sqldf")
+
+#it's better
+install.packages(c("nycflights13", "Lahman"))
+install.packages("lubridate")
+```
+
+Calling Libraries
+```{r Calling Libraries}
+library(tidyverse)
+library(dplyr)
+library(grid)
+library(tibble)
+library(tidyr)
+library(stringr)
+library(readr)
+library(sqldf)
+library(ggplot2)
+library (xlsx)
+library(rJava)
+library(xlsxjars)
+
+#for working with dates
+library(lubridate)
+
+
+```
+
+I.IMPORTING
+```{r}
+#We can read from all "sheet" of any excel file
+data1<-read.xlsx ("C:/R-Source/procesos1.xlsx", sheetName = "Hoja1")
+View(data1)
+```
+
+II.TIDY
+baSIC
+```{r}
+#1.CREATE COLUM
+
+
+
+
+#using loops with dataframes
+
+> myDf <- head(iris)
+> myDf
+Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+4          4.6         3.1          1.5         0.2  setosa
+5          5.0         3.6          1.4         0.2  setosa
+6          5.4         3.9          1.7         0.4  setosa
+> nRowsDf <- nrow(myDf)
+> for(i in 1:nRowsDf){
++ print(myDf[i,4])
++ }
+[1] 0.2
+[1] 0.2
+[1] 0.2
+[1] 0.2
+[1] 0.2
+[1] 0.4
+
+
+
+
+#2.Delete Colum
+
+```
+
+06.Abbreviate names for "Macroservicio" and "Servicio_ti"
+  We use "Abbreviate" function
+```{r}
+dem$Macroservicio<-abbreviate(dem$Macroservicio,20,method = "left.kept")
+View(dem)
+
+```
+
+tibble
+```{r}
+eje<-tibble(x=1:6,y=2,z=x^3+y)
+eje$x
+eje[["x"]]
+eje[[1]]
+
+#ANCHOR
+#Using "srt_view" from "htmlwidgets" library
+x1 <- c("apple", "banana", "pear", "arandano")
+str_view(x1,"^a")
+str_view(x1,"a$")
+str_view(x1,".a.")
+
+x2 <- c("apple pie", "apple", "apple cake")
+str_view(x2,"apple")
+str_view(x2,"apple$")
+
+#2.REPETITION
+```
+
+3.DETEC MATCHES
+```{r}
+  #Boolean conditin of detecting "e" inside each word
+  str_detect(x1,"app")
+  # How many common words start with t?
+  sum(str_detect(x1,"e"))
+
+#6.Find Matches with "PATTERNS" uppercase or lowercase forms
+    #Now we are going to use a "fruit" from "stringr" library
+  stringr::fruit
+  
+  str_view(fruit,"nana")
+  #usign regex let us use ignore_case = TRUE, to match either their uppercase or lowercase forms
+  str_view(fruit,regex("nana",ignore_case = TRUE))
+```
+
+
+
+III.OPERATIONS (WITHOUT TRANSFORMING DATA)
+=====================
+Charging colum names to a "list"
+```{r}
+#de.1 is a data frame
+lista1<-names(de.1)
+#or viceversa also run, as for pareto bean
+```
+
+tOTAL SUM
+```{r}
+#First charging a bean 
+  be.paret.app<-de.1 %>%
+    group_by(criterio=sistema_relacionado) %>%
+    summarize(cantidad=n())%>%
+    filter(!is.na(criterio))%>%
+    #THIS IS for figure out the total as a new colum
+    mutate(s=sum(cantidad))
+```
+order rows using "ARRANGE"
+```{r}
+
+  be.bar.ser.app<-de.1 %>%
+    group_by(periodo=sistema_relacionado,criterio=Sigla_Macroservicio) %>%
+    summarize(cantidad=n())%>%
+    filter(!is.na(criterio)&periodo%in%c("NSP","NSTD","APJ","SIGA","NSBR","MCCIA","OYR","APPENS","REFLEX","SAA"))%>%
+    arrange(desc(cantidad))
+```
+
+
+
+III.TRANSFORM
+=========================
+Libraries: tibble,stringr
+1.Basic update
+```{r}
+ara.dqa.dep$area<-ara.dqa.dep$Unid_org
+#Remove just one "vocal"
+ara.dqa.dep$area<-str_replace_all(ara.dqa.dep$area,"?","o")
+# remove accents
+ara.dqa.dep$area<-chartr("?????", "aeiou",ara.dqa.dep$area)   
+
+#You use ifelse when you have to replace all 
+ara.dqa.dep$area<- ifelse(str_detect(ara.dqa.dep$area,regex("Direccion de Inversiones")),"DIN",ara.dqa.dep$area)
+#if you just want to update same pattern without affect the others one, do that
+ara.dqa.dep$area<- ifelse(str_detect(ara.dqa.dep$area,regex("Direccion de Inversiones")),"DIN",ara.dqa.dep$area)
+```
+
+
+2.Advance update, using comparison
+
+
+update colums
+```{r  update colums}
+#we cannot use a list of patterns whe we use "grepl"
+d$Flat <- ifelse(grepl("Apt",d$Flat),"Apartment","House")
+
+rtc.1$macroservicio[rtc.1$Tipo=="InformeTecnico"|rtc.1$Tipo_de_Requerimiento=="Informes tecnicos"]<-"MS11-INFORMES TECNICOS"
+rtc.1$macroservicio[rtc.1$Tipo%in%c("InformeTecnico","Informes tecnicos")]<-"MS11-INFORMES TECNICOS"
+
+#This is the best wa  y
+rtc.1<-rtc.1 %>%
+  mutate(fecha_de_cierre= ifelse(grepl("Cerrado",Estado),Fecha_de_modificacion,NA)) 
+
+
+```
+
+update one table from another, prior to Compare 1 columns
+```{r}
+#1.Populate from "CAtegoria 2",prior to compare against Anexo5_sistemas_Aranda
+ara.1$newSis_Cat2<-ifelse(match(ara.1$Categoria2,ara.sis$Sigla_sist),ara.1$Categoria2,ara.1$sistema_relacionado)
+rtc.1$proceso_relacionado<-rtc.proc.nonull$Proceso_OIP[match(rtc.1$Proceso_afectado,rtc.proc.nonull$Proceso_afectado)]
+```
+
+
+update one table from another, prior to Compare 2 columns
+```{r}
+rtc.1$estado_req<-ifelse(match(rtc.1$macroservicio,rtc.est.gen$Macroservicio_aux)&match(rtc.1$Estado,rtc.est.gen$Estado_req_aux),rtc.est.gen$Estado_generico,NA)
+```
+
+
+Upper 
+2 ways to turn all into "upper" ("casefold" or "toupper")
+```{r}
+#casefold
+ara.dqa.dep$SubArea<- casefold(ara.dqa.dep$SubArea,upper = TRUE)
+
+#toupper
+ara.dqa.dep$Area<-toupper(ara.dqa.dep$Area)
+
+```
+
+
+
+```{r}
+#
+ara.df.2<-ara.df.1 %>%
+          mutate(sis_cate= ifelse(grepl("NSP",ara.df.1$Categoria3),"NSP","NA")) 
+
+# finding "SISTEMAS" in the colum "Categoria3". 
+  ara.df.1 %>%
+  filter(ara.df.1$Categoria3 %in% c("NSBR","NSP"))%>%
+  select(Servicio_ti,Categoria3)
+```
+
+
+```{r}
+#4.REPLACING MATCHES
+  #First just replacing the first vouwel fron each word
+  str_replace(x1,"[aeiou]","-")
+  #Now replacing the all vouwels fron each word
+  str_replace_all(x1,"[aeiou]","-")
+  #With str_replace_all() you can perform multiple replacements by supplying a named vector
+  x3 <- c("1 house", "2 cars", "3 people")
+  str_replace_all(x3,c("1"="one","2"="two","3"="three"))
+  
+  #BUT FOR DATAFRAME IS DIFFERENT
+  ara.df.2$Servicio_ti<-str_replace_all(ara.df.2$Servicio_ti,"S025","S25")
+  
+  
+  #Now we are going to use a "sentences" from "stringr" library
+  stringr::sentences
+  length(sentences)
+  head(sentences)
+  #I flip the order of the second and third words
+  sentences%>%
+          str_replace("([^ ]+) ([^ ]+) ([^ ]+)", "\\1 \\3 \\2")%>%
+          head(5)
+#5.Split and separete
+  #Split with special character(*,/,(, etc)), then use "separate"
+  ara.1 <- ara.df%>%  
+  separate(Jerarquia,c("Macroservicio","Servicio_ti","Subservicio","Categoria1","Categoria2","Categoria3","Categoria4"), sep ='\\.|\\.|\\.|\\.|\\.|\\.', remove = FALSE)
+  #SPlit with characters ("and","te", etc), then use "split"
+  str_split(fruits, " and ", simplify = TRUE)
+  
+  
+```
+
+
+.  "date"
+```{r "date"}
+###a.ARANDA: Creating new field "fecha" for Analysis  with the form "A?O-MES"
+ara.1$fecha<-format(as.Date(ara.1$fecha_de_solicitud,format="%Y-%m-%d"),"%Y-%m")
+View(ara.1)
+
+rtc_tem<-rtc.1%>%
+  select(fecha_de_solicitud,fecha_de_cierre,Servicio_ti)
+View(rtc_tem)
+
+###b.RTC: Now Turn "fecha_de_solicitud" into date using "LUBRIDATE" library
+rtc_tem$fecha_de_solicitud<-mdy_hm(rtc_tem$fecha_de_solicitud)
+View(rtc_tem)
+
+mdy_hm("01/31/2017 08:01")
+
+```
+
+
+Operations 
+1.Sum
+```{r}
+rtc.1$esfuerzo_total<-as.numeric(rtc.1$Esfuerzo_SFS)+as.numeric(rtc.1$Esfuerzo_GIC)
+```
+
+VII.SAVE
+Libraries: write,xlsx (it comes with "xlsxjars" and "rJava" libraries)
+```{r VII.SAVE}
+#use write.xlsx from "WriteXLS" library
+#Warning: lESS THAN 66000 ROWS
+WriteXLS("ara.2","C:/R-Source/back_rtc_1.xls")
+
+
+#we'll use write.xlsx from "xlsx" library
+write.xlsx(rtc.proc,file ="C:/R-Source/Anexo1_EquivProcesosNoNull_RTC.xlsx")
+```

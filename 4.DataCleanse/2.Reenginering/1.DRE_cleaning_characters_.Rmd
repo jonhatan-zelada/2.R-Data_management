@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+if (!require("tidyr")) {
+  install.packages("tidyr", repos="http://cran.rstudio.com/") 
+  library(tidyr)
+}
+
+if (!require("dplyr")) {
+  install.packages("dplyr", repos="http://cran.rstudio.com/") 
+  library(dplyr)
+}
+
+if (!require("readxl")) {
+  install.packages("readxl", repos="http://cran.rstudio.com/") 
+  library(readxl)
+}
+
+if (!require("stringr")) {
+  install.packages("stringr", repos="http://cran.rstudio.com/") 
+  library(stringr)
+}
+```
+
+```{r}
+data3<-read_xlsx("C:/R-Source/data_dre.xlsx", sheet="Hoja1")
+```
+
+
+
+I.EXTRACT CHARACTERES FROM A COLUMN
+==========================
+#1. Get the parenthesis and what is inside
+```{r}
+ara.1$newSis_Con<-str_extract(ara.1$Sistema_consulta,"\\([^()]+\\)")
+ara.1$newSis_Rep<-str_extract(ara.1$Sistema_rep01,"\\([^()]+\\)")
+ara.1$newSis_Ana<-str_extract(ara.1$Sistema_Analisis,"\\([^()]+\\)")
+```
+ 
+ 
+#2. Remove parenthesis and rescue those who have not parenthesis 
+```{r}
+ara.1$newSis_Con <- substring(ara.1$newSis_Con,2, nchar(ara.1$newSis_Con)-1)
+ara.1$newSis_Con <-ifelse(is.na(ara.1$newSis_Con),ara.1$Sistema_consulta,ara.1$newSis_Con)
+```
+ 
+
+
+II.REMOVE CHARACTERES INSIDE A COLUMN
+===================================
+#1.Remove point decimal
+RT11: Remove  point decimal en campos de esfuerzo RTC
+```{r RT11: Convirtiendo el punto decimal en campos de esfuerzo}
+rtc.1 <- rtc.1%>%  
+  separate(Esfuerzo_SFS_1,c("Esfuerzo_SFS_01","dec_sfs1"), sep ='\\.', remove = TRUE)
+
+```
+
+
+#2.remove accents
+```{r}
+ara.1$Area<-chartr("?????", "aeiou",ara.1$Area)  
+```
+ 
+
+
+III.UPDATE CHARACTERS
+
+#1.uPDATE a whole dataframe column to 
+```{r}
+data<-data3[,c("Tiempo del Caso","Tiempo de  Solución Real","Tiempo de  Atención Real")]
+
+data[] <- lapply(data, function(x) as.numeric(as.character(x)))
+```
+
+
+
+IV.DEDUPLICATION
+====================================
+#1.Separate characters united by ".",";"(point, semicolon,etc )
+Using "Separate" from "tidyr library" with Dataframe
+separate the colum "JerarquIa" into two columns splitted "(", it is necessary put "\\" before adding more conditions using "|".
+```{r RT02:Separate "Jerarquia" from ARANDA}
+
+data3.sep <- data3%>%  
+  separate(Jerarquia,c("Macroservicio","Servicio_ti","Subservicio","Categoria1","Categoria2","Categoria3","Categoria4"), sep ='\\.|\\.|\\.|\\.|\\.|\\.', remove = FALSE)
+
+``` 
+
+#2.SPLIT "unid_org" into two column without deleting the original one
+```{r}
+ara.1 <- ara.1%>%  
+  separate(Unid_org,c("Area","SubArea"), sep ='\\/',remove = FALSE)
+```
+
+
+ 
+ 

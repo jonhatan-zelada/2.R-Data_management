@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+if (!require("scales")) {
+  install.packages("scales", repos="http://cran.rstudio.com/") 
+  library(scales)
+}
+
+library(formattable)
+
+```
+
+
+
+```{r}
+# it comes within "scales" lybrary
+percent((1:10) / 100)
+```
+
+```{r}
+
+x <- c(0.23, 0.95, 0.3)
+percent(x)
+```
+
+#Percent inside a Table (dplyr and formattable)
+```{r}
+  iris%>%
+  group_by(Species)%>%
+  summarise(suma=sum(Sepal.Length))%>%
+  mutate(pocentaje=percent(suma/sum(suma)))
+```
+
+
+```{r}
+library(dplyr)
+mtcars %>%
+    # convert cyl column as.character
+    mutate_at("cyl",as.character) %>%
+    # add a copy of the origina data with cyl column = 'TOTAL'
+    bind_rows(mutate(mtcars, cyl="total")) %>%
+    group_by(cyl) %>% summarise_all(sum)
+```
+ 
+

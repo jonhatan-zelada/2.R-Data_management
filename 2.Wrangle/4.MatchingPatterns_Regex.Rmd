@@ -1,0 +1,196 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+install.packages("nycflights13")
+
+```
+
+```{r}
+library(nycflights13)
+
+library(stringr)
+library(stringi)
+library(dplyr)
+```
+
+
+1. EXTRACT characters (Pattern)
+==============================
+##1. Extracts before or after a character 
+
+###1.before or after a hyphen
+```{r}
+#Extracts characters before a hyphen
+v2<-str_extract('Lima-Peru', "[^-]+")
+
+```
+
+
+
+##2. Extracts after, before space
+```{r}
+library(stringr)
+shopping_list <- c("service S4", "loan for school", "loan for university", "Service S2")
+```
+
+
+```{r}
+#1. before space
+str_extract(shopping_list, "[a-z]+")
+##the same
+gsub( "\\s.*", "", shopping_list )
+##
+
+#str_extract(shopping_list, "[a-z]")
+
+#2.First word after space
+str_extract(shopping_list, " [a-z]+")
+
+
+##3. Between spaces
+str_extract("d1 service s1", "(?<=\\s)(.*)(?=\\s)")
+
+#(?<=\\s) checks whether there is whitespace before
+#(?=\\s) checks whether there is a whitespace after
+#(.*) extracts everything in between the white spaces
+```
+
+
+
+
+```{r}
+#. You can find the complete list here, but here we can use '[:alpha:]' to represent all alphabet characters including both upper and lower cases.
+
+flight %>%
+  select(FL_DATE, CARRIER, ORIGIN, ORIGIN_CITY_NAME, ORIGIN_STATE_ABR, DEP_DELAY, DEP_TIME, ARR_DELAY, ARR_TIME) %>%
+filter(str_detect(ORIGIN_CITY_NAME, "New[:alpha:]+rk")) %>%
+count(ORIGIN_CITY_NAME)
+```
+
+
+##3. Extracts only numbers
+```{r}
+shopping_list <- c("service S4", "loan for school", "loan for university", "Service S2")
+```
+
+```{r}
+str_extract(shopping_list, "\\d")
+  
+```
+
+##4 Extracts characters base on position
+
+```{r}
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
+```
+
+
+###1.Extract the first to four
+```{r}
+ str_extract(shopping_list, "[a-z]{1,4}")
+```
+
+###2.Extract the last four library(stringi)
+```{r}
+
+library(stringi)
+stri_sub(shopping_list, -4)
+
+```
+
+```{r}
+esfu.ini$id_padre=substr(esfu.ini$id_padre,1,nchar(esfu.ini$id_padre)-3)
+```
+
+
+###3.extr characters that start with b in position:  from the first to four
+```{r}
+
+str_extract(shopping_list, "\\b[a-z]{1,4}\\b")
+```
+
+##5.Extract dates 
+```{r}
+
+#Extract dates with this pattern "18/09/20" 
+# datos_ingreso=c("Recuento: 1 Ultimo: 17/12/19 10")
+
+ str_extract(datos_ingreso, "[0-9]{2}/[0-9]{2}/[0-9]{2}")
+# 
+
+
+```
+
+II.EXTRACT A PATTERN
+=======================
+
+```{r}
+  #Now we are going to use a "sentences" from "stringr" library
+  stringr::sentences
+  length(sentences)
+  head(sentences)
+  #I flip the order of the second and third words
+  sentences%>%
+          str_replace("([^ ]+) ([^ ]+) ([^ ]+)", "\\1 \\3 \\2")%>%
+          head(5)
+```
+
+
+
+III. REMOVE
+============================
+##1.Removing vowels
+```{r}
+
+var4 <- c("1551.55", "AA two tables", "a cloud")
+
+#remove vowels  
+str_remove(var4, "[aeiou]")
+
+#all
+str_remove_all(var4, "[aeiou]")
+
+```
+##2.removing letters
+```{r}
+gsub(' [A-z ]*', '' , shopping_list)
+```
+
+
+##3.Remove all character after the first comma
+
+```{r}
+pattern <- data.frame("colid" = c(1, 2), 
+                      "text" = c("john smith, jane smith", "jon stewart, steven colbert"))
+
+df3=pattern %>% 
+  mutate(text2 = str_replace_all(text, ",.*", ""))
+```
+
+##4.Remove all character after the first space
+```{r not proved}
+
+df3 %>% 
+    mutate(text3 = sub("\\s+[^ ]+$", "", text2))
+
+##the same
+df %>% 
+   mutate(name = str_replace(name, "\\s[^ ]+$", ""))
+
+```
+
+
+##5.Removing first character 
+```{r}
+str_remove(var4, ".")
+```
+
+##6.Removing dot (.)
+```{r}
+gsub("\\.", "", var4, perl=TRUE)
+```
+
+

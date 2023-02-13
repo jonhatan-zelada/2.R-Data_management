@@ -1,0 +1,79 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+
+if (!require("stringr")) {
+  install.packages("stringr", repos="http://cran.rstudio.com/") 
+  library(stringr)
+}
+
+
+if (!require("tibble")) {
+  install.packages("tibble", repos="http://cran.rstudio.com/") 
+  library(tibble)
+}
+if (!require("zoo")) {
+  install.packages("zoo", repos="http://cran.rstudio.com/") 
+  library(zoo)
+}
+
+
+if (!require("dplyr")) {
+  install.packages("dplyr", repos="http://cran.rstudio.com/") 
+  library(dplyr)
+}
+
+if (!require("readxl")) {
+  install.packages("readxl", repos="http://cran.rstudio.com/") 
+  library(readxl)
+}
+
+if (!require("tidyr")) {
+  install.packages("tidyr", repos="http://cran.rstudio.com/") 
+  library(tidyr)
+}
+
+if (!require("scales")) {
+  install.packages("scales", repos="http://cran.rstudio.com/") 
+  library(scales)
+}
+
+
+if (!require("visdat")) {
+  install.packages("visdat", repos="http://cran.rstudio.com/") 
+  library(visdat)
+}
+if (!require("writexl")) {
+  install.packages("writexl", repos="http://cran.rstudio.com/") 
+  library(writexl)
+}
+
+
+```
+
+
+
+```{r}
+#load
+df.name<-read_xls("C:/R-Source/5.Daily/DNI.xls",sheet = "Hoja2")
+```
+
+```{r}
+#Separate "nombres" fron "apellidos"
+df.name.1<-df.name%>%
+separate(Nombre_Apellidos,c("apellidos","nombres"),sep = ",")
+
+df.name.2<-df.name.1%>%
+separate(apellidos,c("apellido_pat","apellido_mat"),sep = " ")
+
+```
+
+```{r write}
+write_xlsx(df.name.2,"C:/R-Source/5.Daily/DNI_clean.xlsx")
+
+```
+

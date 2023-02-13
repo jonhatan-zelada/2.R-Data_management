@@ -1,0 +1,50 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+ 
+```{r}
+if (!require("zoo")) {
+  install.packages("zoo", repos="http://cran.rstudio.com/") 
+  library(zoo)
+}
+```
+ 
+ 
+HANDLE MISSING VALUES
+===============
+
+#1.drop_na( data, ... ): Drop rows containing NA's in . columns
+```{r}
+#1.First import  
+tablaconNA<-read.csv("C:/R-Source/tablaconNA.csv")
+#now
+drop_na(tablaconNA,Categoria2)
+
+```
+
+#2.fill( data, ..., .direction = c("down", "up") ): Fill in NA's in . columns with most recent non-NA values.
+```{r}
+fill(tablaconNA,Categoria2)
+```
+
+#3.Fill columns with "NA" values ("zoo" package)
+```{r}
+a<-c(1,NA,NA,2,NA)
+a1<-na.locf(a)
+```
+
+
+#4.complete NA rows of register with the same colum value (ID)
+```{r}
+df_na <- read.csv(textConnection("ID,  ID_2, FIRST, VALUE
+'a', 'aa', TRUE, 2
+'a', 'ab', FALSE, NA
+'a', 'ac', FALSE, NA
+'b', 'aa', TRUE, 5
+'b', 'ab', FALSE, NA"))
+
+df_na$VALUE <- df_na$VALUE[match(df_na$ID, df_na$ID)]
+df
+```
+

@@ -1,0 +1,154 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+if (!require("dplyr")) {
+  install.packages("dplyr", repos="http://cran.rstudio.com/") 
+  library(dplyr)
+}
+
+if (!require("tidyr")) {
+  install.packages("tidyr", repos="http://cran.rstudio.com/") 
+  library(tidyr)
+}
+
+if (!require("stringr")) {
+  install.packages("stringr", repos="http://cran.rstudio.com/") 
+  library(stringr)
+}
+
+```
+
+```{r}
+#SOurce:R for Data Science - Hadley Wickham; Data Wrangling with R
+#Determine which strings match a pattern.
+#Find the positions of matches.
+#Extract the content of matches.
+#Replace matches with new values.
+#Split a string based on a match.
+```
+
+
+I.STRING MANIPULATION (inside a word)
+====================
+
+#1.UPPER, lOWER
+###1 ways to turn all into "upper" ("casefold" or "toupper")
+```{r}
+#casefold
+casefold(iris$Species,upper = TRUE)
+
+#toupper
+toupper(iris$Species)
+```
+
+
+##2. Abreviate
+```{r}
+#We use "Abbreviate" function
+abbreviate(iris$Species,4,method = "left.kept")
+
+```
+
+###3.Lenght of string
+```{r}
+str_length("abcdef")
+str_length(iris$Species)
+```
+
+
+
+2.MATCHES(stringr,stringr PACKAGE)
+===================
+##1 matching a word inside a column by using DPLYR & STRINGR
+```{r}
+ans2.total%>%filter(str_detect(ans2.total$descrip_def,"UAT"))
+```
+
+
+##2. Detect  string giving the values (str_view from "stringr" library)
+```{r}
+x1 <- c("apple", "banana", "pear", "arandano")
+str_view(x1,"^a")
+str_view(x1,"a$")
+str_view(x1,".a.")
+
+x2 <- c("apple pie", "apple", "apple cake")
+str_view(x2,"apple")
+str_view(x2,"apple$")
+
+```
+
+
+##3.Detect  string giving True-false of the matching
+###A. str_detect from "stringr" PACKAGE)
+```{r}
+  #Boolean conditin of detecting "e" inside each word
+  str_detect(x1,"app")
+  # How many common words start with t?
+  sum(str_detect(x1,"e"))
+
+#6.Find Matches with "PATTERNS" uppercase or lowercase forms
+    #Now we are going to use a "fruit" from "stringr" library
+  stringr::fruit
+  
+  str_view(fruit,"nana")
+  #usign regex let us use ignore_case = TRUE, to match either their uppercase or lowercase forms
+  str_view(fruit,regex("nana",ignore_case = TRUE))
+```
+
+
+
+###C. grepl from "base"
+```{r}
+mtcars$type <- rownames(mtcars)
+filter(mtcars, grepl('Toyota|Mazda', type))
+
+#the complement
+dplyr::filter(mtcars, !grepl('Toyota|Mazda', type))
+```
+
+
+###D.PAste
+```{r}
+
+paste(mtcars$mpg, ".csv", sep="")
+```
+
+##2.3.REPLACING SUBTRINGS BY EXACT VALUES(stringr PACKAGE)
+```{r}
+#1.First just replacing the first vowel fron each word
+  str_replace(x1,"[aeiou]","-")
+  #Now replacing the all vouwels fron each word
+  str_replace_all(x1,"[aeiou]","-")
+  #With str_replace_all() you can perform multiple replacements by supplying a named vector
+
+#2.Now replace and assign
+  #asing to a object called "vector1"
+  vector1<-head(iris,150)
+  vector1$Species<-str_replace_all(vector1$Species,"to","MA")
+
+  #If a want to replace more than one value
+  vector1$col1<-str_replace_all(vector1$Species,c("se"="one","MA"="two","sa"="three"))
+  
+    
+#3. remove accents
+  data1$newcol<-chartr("?????", "aeiou",data1$Proceso_afectado) 
+```
+
+
+##2.4. EXTRACT CHARACTERS BY POSITION-SUBTRINGS
+###1.From a begin to end position
+```{r}
+#Subtring the colum
+substr("abcdef", 2, 4)
+```
+###2. From a begin to infinite
+```{r}
+substring("abcdef", 2)
+```
+
+
+

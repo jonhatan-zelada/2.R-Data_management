@@ -1,0 +1,226 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+
+
+I.SHOW DATA
+====================
+
+```{r}
+#create working data
+data1 <- iris
+```
+
+
+#1.Select columns
+```{r}
+
+#1.Select colums, the next three are the same
+  data1[1] 
+  data1["Sepal.Width"]
+  data1[,1]
+
+#two or n columns  
+  data1[c(1,2)]
+  data1[c("Sepal.Width","Petal.Length")]
+
+
+```
+
+
+#2.Select rows
+```{r}
+#data
+data1<-head(iris,100)
+
+#2.using  Conditionals
+##one Conditionals
+data1[data1$Species=="setosa",]
+##Using Subset
+subset(data1, Species=="setosa")
+
+##several Conditionals with or
+data1[data1$Petal.Length==1.4|data1$Petal.Length==1.5,]
+#Now i want to see just the colum N?5
+data1[data1$Petal.Length==1.4|data1$Petal.Length==1.5,5]
+
+##Using and conditional (&)
+data1[data1$Sepal.Length==4.8 & data1$Species=="setosa",]
+
+
+#Optimize Conditional Using "in" 
+data1[data1$Petal.Length%in%c(1.4,1.5),]
+
+#Looking for the complement
+data1[!(data1$Species=="versicolor"),]
+
+#
+iris[,-6]
+```
+
+
+II.UPDATE
+=======================
+
+#1. Update colums with static values
+```{r  update colums}
+data3=data1
+
+#Pior compare with a row value of the same column
+data1$Petal.Length[data1$Petal.Length==1.4]<-10
+View(data1)
+
+data1$Petal.Length[is.na(data1$Petal.Length)]<-2
+
+
+#Pior compare with a row value of another column
+data1$Petal.Length[data1$Species =="virginica"]<-0.5
+View(data1)
+
+
+#Way2: using ifelse(base library) .We cannot use a list of patterns whe we use "grepl"
+data3$Species <- ifelse(grepl("setosa",data3$Species),"specie1","null")
+
+```
+
+
+
+#2. Add columns 
+```{r}
+#1. CREATE COLUM
+###1.Option 1 asda
+data8<-head(iris,4)
+
+data8$campo<-NA
+
+data8$location<-c(11,2,6,7)
+
+###1.Option 2
+temperature<-c(30,23,63,37)
+
+data9<-cbind(data8,temperature)
+
+```
+
+#3.Add  rows
+```{r}
+#1. ADDING NEW ROWS
+##First, assure that the objetc to bind have to be:
+data4<-head(iris,2)
+
+data5<-head(iris,3)
+  #a.the same class
+class(df1)
+class(df2)
+  #b.the same columns number
+
+  #c.the same columns name
+
+##After validate that the conditions have been fulfill
+data6<-rbind(data4,data5)
+```
+
+
+#4. match-Update dataframe colums from another datafram
+```{r}
+set.seed(1)
+seq(1:6)
+sample(seq.Date(as.Date("2020/01/01"),as.Date("2020/01/09"),"day"))
+sample(seq.int(1,10,2))
+sample(seq(6),10, replace = TRUE)
+
+# make some proof data
+set.seed(1)
+df1 <- data.frame(product_id = sample(seq(3), 10, replace = TRUE))
+df2 <- data.frame(product = seq(3), product_name = c("apple", "orange", "strawberry"), stringsAsFactors = FALSE)
+
+
+# You must respect this order of the components, otherwise, you can obtain this message: Error in `$<-.data.frame`(`*tmp*`
+df1$name<-df2$product_name[match(df1$product_id,df2$product)]
+
+```
+
+
+
+
+#5.Update column's names
+```{r}
+#Create a new dataframe just for this example
+data2<-data1
+#
+names(data2)[5]<-"roseType"
+
+
+#assign to all 
+names(data2) <- c("LeSepal", "WiSepal", "LePetal", "WiPetal", "RoseKind")
+View(data2)
+```
+
+
+
+
+III.DELETE
+====================
+# 1.Delete columns
+```{r}
+#fIRST CREATE A COLUM
+iris$col1<-"abc"
+#now remove that colum
+iris$col1<-NULL
+
+
+
+```
+
+# 2.Delete rows
+```{r}
+#By simplified sequence :
+mydata[-(1:3 * 2), ]
+
+#By sequence :
+
+mydata[seq(1, nrow(mydata), by = 2) , ]
+
+#By negative sequence :
+
+mydata[-seq(2, nrow(mydata), by = 2) , ]
+#Or if you want to subset by selecting odd numbers:
+
+mydata[which(1:nrow(mydata) %% 2 == 1) , ]
+#Or if you want to subset by selecting odd numbers, version 2:
+
+mydata[which(1:nrow(mydata) %% 2 != 0) , ]
+#Or if you want to subset by filtering even numbers out:
+
+mydata[!which(1:nrow(mydata) %% 2 == 0) , ]
+#Or if you want to subset by filtering even numbers out, version 2:
+
+mydata[!which(1:nrow(mydata) %% 2 != 1) , ]
+
+```
+
+
+
+IV. OPERATION
+=================
+##1.Sum
+```{r}
+data1$sumaPetal<-as.numeric(data1$Petal.Length)+as.numeric(data1$Petal.Width)
+View(data1)
+```
+
+
+##using tibble
+```{r}
+library(tibble)
+dataset <- data.frame(a = 1:5, b = 2:6, c=3:7)
+add_column(dataset, d = 4:8, .after = 2)
+# can use column names instead of column index :
+add_column(dataset, d = 4:8, .after = "b")
+# use argument .before instead of .after if more convenient.
+add_column(dataset, d = 4:8, .before = "c")
+```

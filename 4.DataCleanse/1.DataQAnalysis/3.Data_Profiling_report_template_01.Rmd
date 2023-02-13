@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+
+```{r install}
+
+if (!require("visdat")) {
+  install.packages("visdat", repos="http://cran.rstudio.com/") 
+  library(visdat)
+}
+
+if (!require("naniar")) {
+  install.packages("naniar", repos="http://cran.rstudio.com/") 
+  library(naniar)
+}
+
+if (!require("rpart")) {
+  install.packages("rpart", repos="http://cran.rstudio.com/") 
+  library(rpart)
+}
+
+
+if (!require("DataExplorer")) {
+  install.packages("DataExplorer", repos="http://cran.rstudio.com/") 
+  library(DataExplorer)
+}
+
+if (!require("rpart.plot")) {
+  install.packages("rpart.plot", repos="http://cran.rstudio.com/") 
+  library(rpart.plot)
+}
+
+
+if (!require("ggplot2")) {
+  install.packages("ggplot2", repos="http://cran.rstudio.com/") 
+  library(ggplot2)
+}
+
+if (!require("data.table")) {
+  install.packages("data.table", repos="http://cran.rstudio.com/") 
+  library(data.table)
+}
+
+if (!require("rmarkdown")) {
+  install.packages("rmarkdown", repos="http://cran.rstudio.com/") 
+  library(rmarkdown)
+}
+```
+
+
+```{r}
+config <- list(
+"introduce" = list(),
+"plot_str" = list(
+"type" = "diagonal",
+"fontSize" = 35,
+"width" = 1000,
+"margin" = list("left" = 350, "right" = 250)
+),
+"plot_missing" = list(),
+"plot_histogram" = list(),
+"plot_bar" = list(),
+"plot_correlation" = list("use" = "pairwise.complete.obs"),
+"plot_prcomp" = list(),
+"plot_boxplot" = list(),
+"plot_scatterplot" = list()
+)
+# Create report
+create_report(iris)
+create_report(airquality, y = "Ozone")
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

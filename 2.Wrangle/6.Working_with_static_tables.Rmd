@@ -1,0 +1,216 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r Data library}
+
+if (!require("dplyr")) {
+  install.packages("dplyr", repos="http://cran.rstudio.com/") 
+  library(dplyr)
+}
+
+
+if (!require("kableExtra")) {
+  install.packages("kableExtra", repos="http://cran.rstudio.com/") 
+  library(kableExtra)
+}
+
+
+if (!require("knitr")) {
+  install.packages("knitr", repos="http://cran.rstudio.com/") 
+  library(knitr)
+}
+
+```
+
+
+
+I.Basis
+==========
+#1.Creating a Table Directly
+```{r}
+m.table <- matrix(c(51,43,22,92,28,21,68,22,9),ncol=3,byrow=TRUE)
+colnames(m.table) <- c("High","Low","Middle")
+rownames(m.table) <- c("current","former","never")
+m.table <- as.table(m.table)
+```
+
+
+#2.Addition and subtract
+```{r}
+#https://stackoverflow.com/questions/4946873/how-do-i-add-a-row-to-a-data-frame-with-totals
+
+#https://garthtarr.github.io/meatR/janitor.html
+
+#1.addition
+x <- data.frame(Language=c("C++", "Java", "Python"), 
+                Files=c(4009, 210, 35), 
+                LOC=c(15328,876, 200), 
+                stringsAsFactors=FALSE) 
+
+y <- rbind(x, c("Total", colSums(x[,2:3])))
+
+
+
+#2.Subtract
+df <- read.table(textConnection("Nrow  a   b    c   d
+1     0.1 0.2 0.3 0.4 
+2      2   3   4   5
+3      7   8   9   10"), stringsAsFactors=FALSE, header=TRUE)
+
+df[1, ] - df[2, ]
+# or assign the result to a new row...
+df <- rbind(df, df[1, ] - df[2, ])
+
+```
+
+#3.Subtract from the previous colum
+```{r}
+data = data.frame(x=c(1,5,7,10),y=c(3,2,4,1.1),z=1:4)
+```
+##1Basic
+```{r}
+ for(i in 2:nrow(data)){
+ result = data[i,] - data[1,]
+ print (result)
+ }
+```
+##2.LIke Cash flow
+https://rpubs.com/DanielSLee/IntroRforFinance
+```{r}
+ for(i in 2:ncol(data)){
+ result1 = data[i,] - data[1,]
+ print (result)
+ }
+```
+
+
+
+II.OPERATIONS
+=========
+##1.transpose A DATAFRAME
+```{r}
+library(data.table)
+
+# get data
+  data("mtcars")
+
+# transpose
+  t_mtcars <- transpose(mtcars)
+
+# get row and colnames in order
+  colnames(t_mtcars) <- rownames(mtcars)
+  rownames(t_mtcars) <- colnames(mtcars)
+  
+```
+
+##2.converting multiple columns from character to numeric format in r
+```{r}
+DF <- data.frame("a" = as.character(0:5),
+                 "b" = paste(0:5, ".1", sep = ""),
+                 "c" = letters[1:6],
+                 stringsAsFactors = FALSE)
+
+# Check columns classes
+sapply(DF, class)
+
+#           a           b           c 
+# "character" "character" "character" 
+
+cols.num <- c("a","b")
+DF[cols.num] <- sapply(DF[cols.num],as.numeric)
+sapply(DF, class)
+
+```
+
+##3.converting all columns- applied to an object of class "c('integer', 'numeric')"
+```{r}
+library(dplyr)
+mtcars %>%
+  mutate_all(as.character)
+```
+
+##4.converting all columns to integer
+```{r}
+data <- structure(list(v1 = c(22.394, 43.72, 58.544, 56.877, 1.659, 29.142, 
+67.836, 68.851), v2 = c(144.373, 72.3, 119.418, 112.429, 35.779, 
+41.661, 166.941, 126.548), v3 = structure(c(33L, 29L, 33L, 5L, 
+13L, 31L, 5L, 8L), .Label = c("", "#VALUE!", "0", "1", "10", 
+"11", "12", "13", "14", "15", "16", "17", "18", "19", "2", "20", 
+"21", "22", "23", "24", "25", "26", "28", "29", "3", "30", "32", 
+"33", "4", "48", "5", "6", "7", "8", "9"), class = "factor"), 
+    v4 = structure(c(24L, 6L, 22L, 23L, 16L, 22L, 23L, 26L), .Label = c("", 
+    "-1", "-2", "-4", "#VALUE!", "0", "1", "10", "11", "12", 
+    "13", "14", "15", "16", "17", "18", "19", "2", "24", "28", 
+    "29", "3", "4", "5", "6", "7", "8", "9"), class = "factor")), .Names = c("v1", 
+"v2", "v3", "v4"), row.names = c("4", "5", "6", "7", "8", "9", 
+"10", "11"), class = "data.frame")
+
+data[] <- lapply(data, function(x) as.numeric(as.character(x)))
+```
+
+##5.count NAs per row in dataframe
+```{r}
+#df is a dataframe with NA values
+df$na_count <- apply(df, 1, function(x) sum(is.na(x)))
+```
+
+
+##6Charging colum names to a "list"
+```{r}
+#de.1 is a data frame
+lista1<-names(de.1)
+#or viceversa also run, as for pareto bean
+```
+
+
+III.Cumulative values in a table
+================
+```{r}
+### create a data frame of totals
+    product_sales <- data.frame("Day" = c(1:10),"Sales" = c(100,200,150,120,130,145,90,150,180,190))
+ 
+### add cumulative column to the data frame
+    product_sales[,"cum_sales"] <- cumsum(product_sales$Sales)
+ 
+###Add mean    
+    product_sales[,"mean"] <- mean(product_sales$Sales)
+    
+### print data frame
+    product_sales
+```
+
+
+
+##2.Cumulative frequency
+```{r}
+
+if (!require("agricolae")) {
+  install.packages("agricolae", repos="http://cran.rstudio.com/") 
+  library(agricolae)
+}
+
+
+weight<-c( 68, 53, 69.5, 55, 71, 63, 76.5, 65.5, 69, 75, 76, 57, 70.5,
++ 71.5, 56, 81.5, 69, 59, 67.5, 61, 68, 59.5, 56.5, 73,
++ 61, 72.5, 71.5, 59.5, 74.5, 63)
+
+h1<- graph.freq(weight,col="yellow",frequency=1,las=2,xlab="h1")
+
+print(summary(h1),row.names=FALSE)
+```
+
+
+##3. Average
+```{r}
+df.saea.clean%>%
+          filter(terminado=="si"&Estado=="En Proceso"&grepl("INDRA",Especialista.de.Estado)&!is.na(serv_TI))%>% 
+          group_by(Linea.de.Servicio=serv_TI,Fecha.final)%>%
+          summarise(horas=round((sum(Tiempo)/60),2))%>%
+          group_by(Linea.de.Servicio) %>%
+          summarise(Mean = mean(horas))
+```
+
+
+

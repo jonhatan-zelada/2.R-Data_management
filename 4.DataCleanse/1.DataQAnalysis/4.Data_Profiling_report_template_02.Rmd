@@ -1,0 +1,91 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r install}
+
+if (!require("visdat")) {
+  install.packages("visdat", repos="http://cran.rstudio.com/") 
+  library(visdat)
+}
+
+if (!require("naniar")) {
+  install.packages("naniar", repos="http://cran.rstudio.com/") 
+  library(naniar)
+}
+
+if (!require("rpart")) {
+  install.packages("rpart", repos="http://cran.rstudio.com/") 
+  library(rpart)
+}
+
+
+if (!require("DataExplorer")) {
+  install.packages("DataExplorer", repos="http://cran.rstudio.com/") 
+  library(DataExplorer)
+}
+
+if (!require("rpart.plot")) {
+  install.packages("rpart.plot", repos="http://cran.rstudio.com/") 
+  library(rpart.plot)
+}
+
+
+if (!require("ggplot2")) {
+  install.packages("ggplot2", repos="http://cran.rstudio.com/") 
+  library(ggplot2)
+}
+
+if (!require("data.table")) {
+  install.packages("data.table", repos="http://cran.rstudio.com/") 
+  library(data.table)
+}
+
+if (!require("rmarkdown")) {
+  install.packages("rmarkdown", repos="http://cran.rstudio.com/") 
+  library(rmarkdown)
+}
+```
+
+
+s
+```{r}
+
+data("diamonds", package = "ggplot2")
+# Set some missing values
+diamonds2 <- data.table(diamonds)
+for (j in 5:ncol(diamonds2)) {
+set(diamonds2,
+i = sample.int(nrow(diamonds2), sample.int(nrow(diamonds2), 1)),j,value = NA_integer_)
+}
+# Create customized report for diamonds2 dataset
+create_report(
+data = diamonds2,
+output_file = "report.html",
+output_dir = getwd(),
+y = "price",
+config = list(
+"introduce" = list(),
+"plot_missing" = list(),
+"plot_histogram" = list(),
+"plot_density" = list(),
+"plot_bar" = list("with" = "carat"),
+"plot_correlation" = list("use" = "pairwise.complete.obs"),
+"plot_prcomp" = list(),
+"plot_boxplot" = list("by" = "carat"),
+"plot_scatterplot" = list("by" = "carat")
+),
+html_document(toc = TRUE, toc_depth = 6, theme = "flatly")
+)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

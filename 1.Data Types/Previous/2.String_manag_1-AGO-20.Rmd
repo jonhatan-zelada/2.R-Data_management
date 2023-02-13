@@ -1,0 +1,206 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+I.STRING MANIPULATION (inside a word)
+====================
+#1.REPETITION AND SEQUENCES
+##.Create vectors of strings
+```{r}
+## a) ( 1,2,3, ??? ,19,20) 
+v1<-c(1:20)
+
+## b) ( 20,19, ??? ,2,1 )
+v2<-c(20:1)
+
+## c) ( 1,2,3, ??? ,19,20,19,18, ??? ,2,1 )
+v3<-c(1:20,19:1)
+
+## d) (4,6,3) y asignarlo a la variable tmp
+tpm<-c(4,6,3)
+
+## e) ( 4,6,3,4,6,3, ??? ,4,6,3 ) donde el numero 4 aparece 10 veces.
+v4<-rep.int(tpm,times=10)
+
+#f) ( 4,6,3,4,6,3, ??? ,4,6,3,4 ) donde hay 11 ocurrencias del n?mero 4, 10 ocurrencias del n?mero 6 y 10 ocurrencias del n?mero 3
+v5<-c(v4,4)
+##g) ( 4,4, ??? ,4,6,6, ??? ,6,3,3, ??? ,3 ) donde hay 10 ocurrencias del numero 4, 20 ocurrencias del numero 6 y 30 ocurrencias del numero 3
+v6<-rep(4,times=10)
+v7<-rep(6,times=20)
+v8<-rep(3,times=30)
+v9<-c(v6,v7,v8)
+```
+
+##Create vectors of date
+```{r}
+#1.Create a dataframe of dates 
+df.dates<-seq(as.Date("1910/1/1"), as.Date("1999/1/1"), "years")
+```
+
+##3. Add a column with sequential values
+```{r}
+df.iris<-iris
+df.iris$id <- seq.int(nrow(iris))
+
+```
+
+
+#2.UPPER, lOWER
+### 2 ways to turn all into "upper" ("casefold" or "toupper")
+```{r}
+#casefold
+casefold(iris$Species,upper = TRUE)
+
+
+#toupper
+toupper(iris$Species)
+```
+
+
+##3. Abreviate
+  We use "Abbreviate" function
+```{r}
+abbreviate(iris$Species,4,method = "left.kept")
+
+```
+
+#4.DETEC MATCHES(stringr,htmlwidgets PACKAGE)
+4.1.str_view (from "htmlwidgets" library)
+```{r}
+x1 <- c("apple", "banana", "pear", "arandano")
+str_view(x1,"^a")
+str_view(x1,"a$")
+str_view(x1,".a.")
+
+x2 <- c("apple pie", "apple", "apple cake")
+str_view(x2,"apple")
+str_view(x2,"apple$")
+
+```
+
+
+4.2.TRUe-false str_detect (stringr PACKAGE)
+```{r}
+  #Boolean conditin of detecting "e" inside each word
+  str_detect(x1,"app")
+  # How many common words start with t?
+  sum(str_detect(x1,"e"))
+
+#6.Find Matches with "PATTERNS" uppercase or lowercase forms
+    #Now we are going to use a "fruit" from "stringr" library
+  stringr::fruit
+  
+  str_view(fruit,"nana")
+  #usign regex let us use ignore_case = TRUE, to match either their uppercase or lowercase forms
+  str_view(fruit,regex("nana",ignore_case = TRUE))
+```
+
+4.3.TRUe-false
+```{r}
+mtcars$type <- rownames(mtcars)
+filter(mtcars, grepl('Toyota|Mazda', type))
+
+#the complement
+dplyr::filter(mtcars, !grepl('Toyota|Mazda', type))
+```
+```{r}
+mtcars %>%
+  filter(str_detect(type, 'Toyota|Mazda'))
+```
+
+
+#PAste
+```{r}
+
+paste(mtcars$mpg, ".csv", sep="")
+```
+
+
+```{r}
+file.path(directory, paste(id, ".csv", sep=""))
+```
+
+
+
+#4.3.REPLACING SUBTRINGS BY EXACT VALUES(stringr PACKAGE)
+```{r}
+#1.First just replacing the first vowel fron each word
+  str_replace(x1,"[aeiou]","-")
+  #Now replacing the all vouwels fron each word
+  str_replace_all(x1,"[aeiou]","-")
+  #With str_replace_all() you can perform multiple replacements by supplying a named vector
+
+#2.Now replace and assign
+  #asing to a object called "vector1"
+  vector1<-head(iris,150)
+  vector1$Species<-str_replace_all(vector1$Species,"to","MA")
+
+  #If a want to replace more than one value
+  vector1$col1<-str_replace_all(vector1$Species,c("se"="one","MA"="two","sa"="three"))
+  
+    
+#3. remove accents
+  data1$newcol<-chartr("?????", "aeiou",data1$Proceso_afectado) 
+```
+
+
+#4.4. EXTRACT CHARACTERS BY POSITION-SUBTRINGS
+##1.From a begin to end position
+```{r}
+#Subtring the colum
+substr("abcdef", 2, 4)
+```
+##2. From a begin to infinite
+```{r}
+substring("abcdef", 2)
+```
+
+
+
+```{r}
+str_length
+```
+
+
+
+SEPARATE COLUMS
+=========================
+3.1.Separate columns in R by space delimiter
+```{r}
+#Creating DATA FRAME
+df<-data.frame(col1=c("SOA ABC BD","MND OOL POL"),col2=c(2,8))
+#Removing Whitespace using: \\s+
+demo<-df%>%
+    separate(col1,c("comp1","comp2","comp3"),sep = "\\s+",remove = FALSE)
+```
+
+
+3.2.
+```{r}
+#1.First import  
+ss<-read.csv("C:/R-Source/ss.csv")
+
+#Split with special character(*,/,(, etc)), then use "separate"
+  ara.1 <- ara.df%>%  
+  separate(Jerarquia,c("Macroservicio","Servicio_ti","Subservicio","Categoria1","Categoria2","Categoria3","Categoria4"), sep ='\\.|\\.|\\.|\\.|\\.|\\.', remove = FALSE)
+  
+  
+
+```
+
+DPLYR & STRINGR
+================
+# matching a word inside a column
+```{r}
+ans2.total%>%filter(str_detect(ans2.total$descrip_def,"UAT"))
+```
+
+```{r}
+#. You can find the complete list here, but here we can use '[:alpha:]' to represent all alphabet characters including both upper and lower cases.
+flight %>%
+  select(FL_DATE, CARRIER, ORIGIN, ORIGIN_CITY_NAME, ORIGIN_STATE_ABR, DEP_DELAY, DEP_TIME, ARR_DELAY, ARR_TIME) %>%
+filter(str_detect(ORIGIN_CITY_NAME, "New[:alpha:]+rk")) %>%
+count(ORIGIN_CITY_NAME)
+```
+

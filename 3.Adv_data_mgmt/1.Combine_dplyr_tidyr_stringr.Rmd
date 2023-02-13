@@ -1,0 +1,33 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+
+```
+
+
+
+Reference book: Modern Data Science with R (chapter 5)
+```{r}
+#
+
+Teams %>%
+select(yearID, teamID, W, L, R, RA) %>%
+filter(teamID == "NYN" & yearID %in% 2004:2012) %>%
+rename(RS = R) %>%
+mutate(
+WPct = W / (W + L), WPct_hat = 1 / (1 + (RA/RS)^2),
+W_hat = WPct_hat * (W + L),
+gm = ifelse(yearID == 2004, "Duquette",
+ifelse(yearID >= 2011, "Alderson", "Minaya"))) %>%
+group_by(gm) %>%
+summarize(
+num_years = n(), total_W = sum(W), total_L = sum(L),
+total_WPct = sum(W) / sum(W + L), sum_resid = sum(W - W_hat)) %>%
+arrange(desc(sum_resid))
+
+```

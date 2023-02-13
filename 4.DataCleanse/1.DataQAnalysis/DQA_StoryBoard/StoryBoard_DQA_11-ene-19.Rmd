@@ -1,0 +1,414 @@
+---
+title: "DQA ARANDA"
+output: flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+```{r wrangling_libraries}
+
+if (!require("scales")) {
+install.packages("scales") 
+  library(scales)
+}
+
+if (!require("visdat")) {
+  install.packages("visdat", repos="http://cran.rstudio.com/") 
+  library(visdat)
+}
+
+if (!require("naniar")) {
+  install.packages("naniar", repos="http://cran.rstudio.com/") 
+  library(naniar)
+}
+
+if (!require("rpart")) {
+  install.packages("rpart", repos="http://cran.rstudio.com/") 
+  library(rpart)
+}
+
+
+if (!require("rpart.plot")) {
+  install.packages("rpart.plot", repos="http://cran.rstudio.com/") 
+  library(rpart.plot)
+}
+
+
+if (!require("VIM")) {
+  install.packages("VIM", repos="http://cran.rstudio.com/") 
+  library(VIM)
+}
+
+
+if (!require("wordcloud")) {
+  install.packages("wordcloud", repos="http://cran.rstudio.com/") 
+  library(wordcloud)
+}
+
+
+
+if (!require("tidyverse")) {
+  install.packages("tidyverse", repos="http://cran.rstudio.com/") 
+  library(tidyverse)
+}
+
+
+if (!require("dplyr")) {
+  install.packages("dplyr", repos="http://cran.rstudio.com/") 
+  library(dplyr)
+}
+
+
+if (!require("readxl")) {
+  install.packages("readxl", repos="http://cran.rstudio.com/") 
+  library(readxl)
+}
+
+if (!require("readr")) {
+  install.packages("readr", repos="http://cran.rstudio.com/") 
+  library(readr)
+}
+
+if (!require("stringr")) {
+  install.packages("stringr", repos="http://cran.rstudio.com/") 
+  library(stringr)
+}
+
+if (!require("validate")) {
+  install.packages("validate", repos="http://cran.rstudio.com/") 
+  library(validate)
+}
+
+if (!require("qicharts2")) {
+  install.packages("qicharts2", repos="http://cran.rstudio.com/") 
+  library(qicharts2)
+}
+
+
+```
+
+
+```{r publishing_libraries}
+
+if (!require("htmlwidgets")) {
+  install.packages("htmlwidgets", repos="http://cran.rstudio.com/") 
+  library(htmlwidgets)
+}
+
+if (!require("DT")) {
+  install.packages("DT", repos="http://cran.rstudio.com/") 
+  library(DT)
+}
+
+if (!require("rpart")) {
+  install.packages("rpart", repos="http://cran.rstudio.com/") 
+  library(rpart)
+}
+
+if (!require("shiny")) {
+  install.packages("shiny", repos="http://cran.rstudio.com/") 
+  library(shiny)
+}
+
+if (!require("flexdashboard")) {
+install.packages("flexdashboard") 
+  library(flexdashboard)
+}
+
+if (!require("ggplot2")) {
+  install.packages("ggplot2", repos="http://cran.rstudio.com/") 
+  library(ggplot2)
+}
+
+if (!require("plotly")) {
+  install.packages("plotly", repos="http://cran.rstudio.com/") 
+  library(plotly)
+}
+
+if (!require("RColorBrewer")) {
+  install.packages("RColorBrewer", repos="http://cran.rstudio.com/") 
+  library(RColorBrewer)
+}
+
+if (!require("ggthemes")) {
+  install.packages("ggthemes", repos="http://cran.rstudio.com/") 
+  library(ggthemes)
+}
+
+if (!require("rpivotTable")) {
+  install.packages("rpivotTable", repos="http://cran.rstudio.com/") 
+  library(rpivotTable)
+}
+
+if (!require("collapsibleTree")) {
+  install.packages("collapsibleTree", repos="http://cran.rstudio.com/") 
+  library(collapsibleTree)
+}
+
+if (!require("collapsibleTree")) {
+  install.packages("collapsibleTree", repos="http://cran.rstudio.com/") 
+  library(collapsibleTree)
+}
+
+if (!require("ggvis")) {
+  install.packages("ggvis", repos="http://cran.rstudio.com/") 
+  library(ggvis)
+}
+```
+
+
+```{r import data}
+#import
+back_ara <- read_csv("C:/R-Source/aranda_DQA.csv")
+
+#Allocate
+ara.dqa<-as.data.frame(back_ara)
+
+
+#clean
+ara.dqa$Categoria1<-str_replace_all(ara.dqa$Categoria1,"[^[:graph:]]", " ") 
+ara.dqa$Categoria2<-str_replace_all(ara.dqa$Categoria2,"[^[:graph:]]", " ") 
+ara.dqa$Categoria3<-str_replace_all(ara.dqa$Categoria3,"[^[:graph:]]", " ") 
+ara.dqa$Categoria4<-str_replace_all(ara.dqa$Categoria4,"[^[:graph:]]", " ") 
+
+#create vectors
+# vector "MAcroservicio"
+list.macroserv<-as.vector(unique(ara.dqa$Macroservicio))
+list.macroserv.1<- as.vector(grep(pattern = "-",list.macroserv,value = TRUE))
+list.macroserv.1 <- sort(list.macroserv.1)
+
+# vector "SUbservicio"
+list.subserv<-as.vector(unique(ara.dqa$Subservicio))
+list.subserv.1<- as.vector(grep(pattern = "-",list.subserv,value = TRUE))
+list.subserv.1 <- sort(list.subserv.1)
+
+# vector "MacroServ-SUbservicio"
+macro.serv.subserv<-ara.dqa %>%
+                  filter(!is.na(Macroservicio)&!is.na(Servicio_ti)&!is.na(Subservicio)&str_detect(Servicio_ti,"-")&str_detect(Macroservicio,"-"))%>%
+                  group_by(Macroservicio,Servicio_ti,Subservicio) %>%
+                  summarise(n=n())
+View(macro.serv.subserv)
+
+
+# vector "Serv-SUbservicio"
+serv.subserv<-ara.dqa %>%
+                  filter(!is.na(Servicio_ti)&!is.na(Subservicio)&str_detect(Servicio_ti,"-"))%>%
+                  group_by(Servicio_ti,Subservicio) %>%
+                  summarise(n=n())
+
+
+
+
+```
+
+
+Nivel de Completitud  {data-navmenu="Analisis de columna"}
+=========================================
+Column {data-width=160}
+-----------------------------------------------------------------------
+1.Se mide el porcentaje de valores Nulls que presenta una columna determinada.
+```{r}
+selectInput("in.MacroServ1",label = h4("Seleccionar el Macroservicio:"),unique(macro.serv.subserv$Macroservicio), selected = "ms01 - soporte microinformatico en software y aplicaciones")
+selectInput("in.serv1","Seleccionar el servicio:",unique(macro.serv.subserv$Servicio_ti), selected = "s01 - soporte sistemas operativos")
+selectInput("in.subserv1","Seleccionar el Subservicio:",unique(macro.serv.subserv$Subservicio), selected = "ss001 - soporte microsoft")
+
+
+macroSerFiltered1<-reactive(macro.serv.subserv[macro.serv.subserv$Macroservicio==input$in.MacroServ1,])
+observe(updateSelectInput(session, "in.serv1",choices = unique(macroSerFiltered1()$Servicio_ti),  selected = "s01 - soporte sistemas operativos"))
+
+
+serFiltered1<-reactive(macro.serv.subserv[macro.serv.subserv$Servicio_ti==input$in.serv1,])
+observe(updateSelectInput(session, "in.subserv1",choices = unique(serFiltered1()$Subservicio),  selected = "ss001 - soporte microsoft"))
+
+
+
+selectInput("Tipo.Aten", "Seleccionar el tipo de atencion:",c("REQUERIMIENTO","INCIDENTE"), selected = "REQUERIMIENTO")
+
+```
+
+Column {data-width=840}
+-----------------------------------------------------------------------
+```{r}
+renderPlot({
+    ara.nul <-ara.dqa %>%
+              filter(Subservicio==input$in.subserv1&tipo_de_atencion==input$Tipo.Aten)
+ vis_miss(ara.nul)
+  })
+```
+
+
+
+Distribucion de Frecuencias {data-navmenu="Analisis de columna"}
+=========================================
+
+Column {data-width=160}
+-----------------------------------------------------------------------
+### Parametros
+```{r}
+selectInput("in.serv","Seleccionar el servicio:",unique(serv.subserv$Servicio_ti), selected = "s01 - soporte sistemas operativos")
+
+selectInput("in.subserv","Seleccionar el Subservicio:",unique(serv.subserv$Subservicio), selected = "ss001 - soporte microsoft")
+
+serFiltered<-reactive(serv.subserv[serv.subserv$Servicio_ti==input$in.serv,])
+
+observe(updateSelectInput(session, "in.subserv",choices = unique(serFiltered()$Subservicio),  selected = "ss001 - soporte microsoft"))
+
+
+selectInput("TipoAten.macro1", "Seleccionar el tipo de atencion:",c("REQUERIMIENTO","INCIDENTE"), selected = "REQUERIMIENTO")
+sliderInput("fecha.macro1", "Seleccione periodo", min = as.Date("2015-07-01"),max =as.Date("2017-10-31"),value=c(as.Date("2016-12-01"),as.Date("2017-05-01")),timeFormat="%b %Y")
+
+```
+
+
+Column {data-width=840} {.tabset}
+-----------------------------------------------------------------------
+### Categoria 1 
+
+```{r}
+library(plotly)
+renderPlotly({
+pie.cat1 <- ara.dqa %>%
+  filter(as.Date(fecha_de_solicitud) >= input$fecha.macro1[1]&as.Date(fecha_de_solicitud)<=
+           input$fecha.macro1[2]&tipo_de_atencion==input$TipoAten.macro1&Subservicio==input$in.subserv) %>%
+  group_by(Categoria1) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~Categoria1, values = ~count,textinfo = 'label+percent') %>%
+  add_pie(hole = 0.6) %>%
+  layout(showlegend = T,xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+pie.cat1
+  })
+```
+
+
+### Categoria 2 
+
+```{r}
+renderPlotly({
+pie.cat2 <- ara.dqa %>%
+  filter(as.Date(fecha_de_solicitud) >= input$fecha.macro1[1]&as.Date(fecha_de_solicitud)<=
+           input$fecha.macro1[2]&tipo_de_atencion==input$TipoAten.macro1&Subservicio==input$in.subserv) %>%
+  group_by(Categoria2) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~Categoria2, values = ~count,textinfo = 'label+percent') %>%
+  add_pie(hole = 0.6) %>%
+  layout(showlegend = T,xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+pie.cat2
+  })
+```
+
+
+### Categoria 3
+```{r Donut cat3 }
+renderPlotly({
+pie.cat3 <- ara.dqa %>%
+  filter(as.Date(fecha_de_solicitud) >= input$fecha.macro1[1]&as.Date(fecha_de_solicitud)<=
+           input$fecha.macro1[2]&tipo_de_atencion==input$TipoAten.macro1&Subservicio==input$in.subserv) %>%
+  group_by(Categoria3) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~Categoria3, values = ~count,textinfo = 'label+percent') %>%
+  add_pie(hole = 0.6) %>%
+  layout(showlegend = T,xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+pie.cat3
+  })
+```
+
+
+### Categoria 4 
+```{r}
+library(plotly)
+
+renderPlotly({
+pie.cat4 <- ara.dqa %>%
+  filter(as.Date(fecha_de_solicitud) >= input$fecha.macro1[1]&as.Date(fecha_de_solicitud)<=
+           input$fecha.macro1[2]&tipo_de_atencion==input$TipoAten.macro1&Subservicio==input$in.subserv) %>%
+  group_by(Categoria4) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~Categoria4, values = ~count,textinfo = 'label+percent') %>%
+  add_pie(hole = 0.6) %>%
+  layout(showlegend = T,xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+pie.cat4
+  })
+
+```
+
+
+
+Tipo de Datos {data-navmenu="Analisis de columna"}
+=========================================
+
+Column {data-width=160}
+-----------------------------------------------------------------------
+```{r}
+
+selectInput("MacroServ", "Seleccionar el Macroservicio:",list.macroserv.1, selected = "consultas")
+
+selectInput("Tipo.Aten", "Seleccionar el tipo de atencion:",c("REQUERIMIENTO","INCIDENTE"), selected = "REQUERIMIENTO")
+```
+
+Column {data-width=840}
+-----------------------------------------------------------------------
+```{r}
+renderPlot({
+    ara.nul <-ara.dqa %>%
+              filter(Macroservicio==input$MacroServ&tipo_de_atencion==input$Tipo.Aten)
+vis_dat(ara.nul)   
+  })
+```
+
+
+
+
+Analisis de Agrupamiento 
+=========================================
+### Servicios vs categorias
+```{r}
+ara.piv<-ara.dqa%>%   
+  select(tipo_de_atencion,Macroservicio,Servicio_ti,Subservicio,Categoria1,Categoria2,Categoria3,Categoria4)
+
+# For using pivotTable it is neccesary that any record have "accent"
+
+rpivotTable(ara.piv)
+```
+
+
+
+
+Definicion de reglas 
+=========================================
+##1. Ningun registro debe tener tildes
+####2. Datos de "Jerarquia" llenos, el cual ser descompuesto por punto (.) en lo siguiente, tal como esta en el "catalogo de Servicios OTI":
+    ##### Macroservicio
+    ##### Servicio
+    #####  SubServicio
+```{r}
+
+```
+
+
+#1.Unicicidad: 
+Esta metrica permite registrar el volumen de valores distintos o unicos para una columna determinada.
+```{r}
+
+#using "n_distinc" from "dplyr" package
+num.total<-nrow(ara.dqa)
+
+t.macro<-n_distinct(ara.dqa$Macroservicio, na.rm = FALSE)/num.total
+#using  "percent()" from "scalesn" package
+
+print(percent(t.macro))
+```
+
+
+# Nivel de Duplicidad {data-navmenu="Analisis de columna"}
+```{r}
+
+```
+
+

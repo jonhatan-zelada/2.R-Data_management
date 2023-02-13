@@ -1,0 +1,101 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+install.packages("stringr")
+```
+
+
+```{r}
+library(stringr)
+```
+
+I. CONVERT TO NUMERIC FORMATS
+============================
+##1.Change to the proper numeric format
+```{r}
+var1 <- c (1, 2.5, 4.5)
+var1
+
+# converts integers to double-precision values
+as.double (var1)
+as.numeric(var1)
+as.integer(var1)
+```
+
+##2.Convert character to numeric format
+```{r}
+#the proper format
+as.numeric("14.5")
+
+```
+
+
+II. WORKING WITH DECIMALS
+============================
+##1.CHange an innapropiate format from "14,5" to "14.5"
+```{r}
+#convert decimals take care
+var2="14,5"
+
+#Using string management functions
+str_replace(var2,",",".")
+
+```
+
+
+##2.hen the number have an innapropiate format "1.222,5"
+```{r}
+
+#convert decimals take care
+var3="1.222,5"
+
+str_extract(var3,".")
+```
+
+
+
+##3Rounding Numbers
+```{r}
+x <- c (1, 1.35, 1.7, 2.05, 2.4, 2.75, 3.1, 3.45, 3.8, 4.15,4.5, 4.85, 5.2, 5.55, 5.9)
+
+#1.Round to the nearest integer
+round (x)
+
+#2.Round up
+ceiling (x)
+
+#3. Round down
+floor (x)
+
+#4. Round to a specific  decimal
+round (x, digits = 1)
+```
+
+
+
+III.Operations
+=============
+##Sum
+```{r}
+n1=23
+n2=58
+n1+n2
+```
+
+
+##Comparing
+```{r}
+n1=23
+n2=58
+#False condition
+n1>n2
+#True condition
+n1<n2
+```
+
+
+

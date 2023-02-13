@@ -1,0 +1,134 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#https://data-se.netlify.com/2017/02/13/data_cleansing/
+#https://dabblingwithdata.wordpress.com/2017/12/20/my-favourite-r-package-for-frequency-tables/
+#https://www.youtube.com/watch?v=qGqAhlFzkSU
+#https://www.youtube.com/watch?v=KbLuSEINxdM
+
+```
+
+
+
+```{r}
+install.packages("janitor")
+install.packages("epiDisplay")
+install.packages("GGally")
+install.packages("summarytools")
+```
+
+```{r}
+library(janitor)
+library(dplyr)
+```
+
+
+
+get_dupes: Get rows of a data.frame with identical values for the specified vari-
+ables
+```{r}
+get_dupes(mtcars, mpg, hp)
+# or called with the magrittr pipe %>% :
+mtcars %>% get_dupes(wt)
+```
+
+tabyl
+==============
+can be called two ways:
+
+1.On a vector
+ when tabulating a single variable - e.g., tabyl(roster$subject)
+```{r}
+mtcars%>%
+    tabyl(cyl)
+```
+
+2.On a data.frame
+    specifying 1, 2, or 3 variable names to tabulate : roster %>% tabyl(subject, employee_status).Here the data.frame is passed in with the %>% pipe; this allows tabyl to be used in an analysis pipeline
+2.1.Two variables:    
+```{r}
+roster %>%
+  filter(hire_date > as.Date("1950-01-01")) %>%
+  tabyl(employee_status, full_time)
+```
+    
+
+
+
+```{r}
+library(lubridate)
+df<-data.frame(x1=c("2017-03-23","2017-03-24"),x2=c("2017-03-24","2017-03-28"))
+df[]<-lapply(df,ymd)
+df$x2-df$x1
+```
+
+
+
+
+crosstab
+===================
+displaying either frequencies or percentages calculated by row, column, or overall.
+```{r}
+mtcars %>%
+  filter(cyl == 6) %>%
+  crosstab(vs, carb)
+
+crosstab(mtcars$mpg,mtcars$cyl)
+```
+
+
+
+
+```{r}
+#https://dabblingwithdata.wordpress.com/2018/02/26/r-packages-for-summarising-data-part-2/
+library(epiDisplay)
+tab1(mtcars$cyl, sort.group = "decreasing", cum.percent = TRUE)
+```
+    
+
+
+s
+=================
+
+```{r}
+library(GGally)
+ggpairs(mtcars)
+```
+
+
+
+```{r}
+library(summarytools)
+freq(iris$Species, style = "rmarkdown", order = "freq")
+```
+
+Identify variables with unique values
+==================
+
+
+
+a
+====================
+
+
+
+```{r}
+mtcars %>%
+tabyl(am, cyl) %>%
+adorn_percentages("col") %>%
+adorn_pct_formatting() %>% #Format a data.frame of decimals as percentages.
+adorn_ns(position = "front") #Add underlying Ns to a tabyl displaying percentages
+```
+
+
+```{r}
+mtcars %>%
+tabyl(am, cyl) %>%
+adorn_percentages("col") %>%
+adorn_pct_formatting()
+```
+
+
